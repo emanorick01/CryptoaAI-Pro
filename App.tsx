@@ -28,7 +28,21 @@ const generateChartData = (basePrice: number) => {
 
 const TradingViewWidget: React.FC<{ symbol: string; timeframe: string; exchange: Exchange }> = ({ symbol, timeframe, exchange }) => {
   const container = useRef<HTMLDivElement>(null);
-  const tvTimeframe = timeframe === '5m' ? '5' : timeframe === '15m' ? '15' : timeframe === '30m' ? '30' : '60';
+  
+  // Mapeamento de timeframes para o padrão TradingView
+  const getTvInterval = (tf: string) => {
+    switch (tf) {
+      case '5m': return '5';
+      case '15m': return '15';
+      case '30m': return '30';
+      case '1h': return '60';
+      case '4h': return '240';
+      case '1d': return 'D';
+      default: return '15';
+    }
+  };
+
+  const tvTimeframe = getTvInterval(timeframe);
   const tvExchange = exchange === Exchange.BINANCE ? 'BINANCE' : exchange === Exchange.BYBIT ? 'BYBIT' : 'MEXC';
 
   useEffect(() => {
@@ -53,7 +67,6 @@ const TradingViewWidget: React.FC<{ symbol: string; timeframe: string; exchange:
       "studies": [
         "STD;Supertrend",
         "STD;Volume_Profile_Fixed_Range",
-        "MAExp@tv-basicstudies",
         "MAExp@tv-basicstudies",
         "MAExp@tv-basicstudies",
         "RSI@tv-basicstudies",
@@ -127,7 +140,6 @@ const App: React.FC = () => {
 
   const [chartData, setChartData] = useState(generateChartData(65000));
 
-  // --- PWA INSTALLATION LOGIC ---
   useEffect(() => {
     const handler = (e: any) => {
       e.preventDefault();
@@ -144,7 +156,6 @@ const App: React.FC = () => {
     if (outcome === 'accepted') setInstallPrompt(null);
   };
 
-  // --- REAL-TIME DATA PROCESSING ---
   const unrealizedPnL = useMemo(() => {
     return activeTrades.reduce((acc, trade) => {
       const currentPrice = assetPrices[trade.pair.split('/')[0]] || trade.entryPrice;
@@ -253,7 +264,6 @@ const App: React.FC = () => {
   return (
     <div className="flex flex-col md:flex-row h-screen w-screen overflow-hidden bg-[#0b0f1a] text-gray-100 safe-area-bottom">
       
-      {/* SIDEBAR (Desktop) / BOTTOM NAV (Mobile) */}
       <aside className="fixed bottom-0 left-0 w-full md:relative md:w-64 border-t md:border-t-0 md:border-r border-gray-800 bg-[#0f172a]/95 backdrop-blur-xl md:bg-[#0f172a] flex flex-row md:flex-col z-[100] pb-safe md:pb-0 h-[70px] md:h-full">
         <div className="hidden md:flex px-6 py-8 items-center gap-3">
           <div className="w-10 h-10 bg-emerald-500 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-500/20">
@@ -265,6 +275,7 @@ const App: React.FC = () => {
         <nav className="flex-1 flex flex-row md:flex-col justify-around md:justify-start px-1 md:px-4 py-2 md:gap-2 w-full">
           <NavBtn active={activeTab === 'overview'} onClick={() => setActiveTab('overview')} icon="fa-th-large" label="Painel" />
           <NavBtn active={activeTab === 'dashboard'} onClick={() => setActiveTab('dashboard')} icon="fa-chart-line" label="Monitor" />
+          <NavBtn active={activeTab === 'analysis'} onClick={() => setActiveTab('analysis')} icon="fa-eye" label="Análise" />
           <NavBtn active={activeTab === 'strategy'} onClick={() => setActiveTab('strategy')} icon="fa-sliders-h" label="Estratégia" />
           <NavBtn active={activeTab === 'positions'} onClick={() => setActiveTab('positions')} icon="fa-layer-group" label="Posições" />
           <NavBtn active={activeTab === 'exchanges'} onClick={() => setActiveTab('exchanges')} icon="fa-building-columns" label="APIs" />
@@ -272,7 +283,6 @@ const App: React.FC = () => {
           <NavBtn active={activeTab === 'trades'} onClick={() => setActiveTab('trades')} icon="fa-history" label="Histórico" className="hidden md:flex" />
         </nav>
 
-        {/* Botão de Instalação PWA/APK/DEB */}
         {installPrompt && (
           <div className="hidden md:block p-4 mt-auto">
             <button onClick={handleInstallClick} className="w-full bg-emerald-600/10 border border-emerald-500/20 text-emerald-500 p-3 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-emerald-500 hover:text-white transition-all">
@@ -309,7 +319,7 @@ const App: React.FC = () => {
           </button>
         </header>
 
-        <div className="p-4 md:p-8 space-y-6">
+        <div className="p-4 md:p-8 space-y-6 flex-1 flex flex-col">
           
           {activeTab === 'overview' && (
             <div className="space-y-6 animate-in fade-in duration-500">
@@ -349,6 +359,38 @@ const App: React.FC = () => {
             </div>
           )}
 
+          {activeTab === 'analysis' && (
+            <div className="flex-1 flex flex-col border border-gray-800 rounded-[2.5rem] overflow-hidden min-h-[500px] glass">
+               <div className="p-4 border-b border-gray-800 flex flex-wrap items-center justify-between gap-4 bg-gray-900/30">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 bg-emerald-500/20 rounded-lg flex items-center justify-center">
+                      <i className="fas fa-chart-line text-emerald-500 text-xs"></i>
+                    </div>
+                    <h3 className="text-[10px] font-black uppercase tracking-widest text-gray-400">TradingView Advanced <span className="text-white">| {currentAsset}</span></h3>
+                  </div>
+                  <div className="flex bg-gray-900/50 p-1 rounded-xl border border-gray-800">
+                     {['5m', '15m', '30m', '1h', '4h', '1d'].map(tf => (
+                       <button 
+                        key={tf} 
+                        onClick={() => setBotSettings(s => ({...s, timeframe: tf as Timeframe}))}
+                        className={`px-3 py-1.5 rounded-lg text-[10px] font-black transition-all ${botSettings.timeframe === tf ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20' : 'text-gray-500 hover:text-gray-300'}`}
+                       >
+                         {tf}
+                       </button>
+                     ))}
+                  </div>
+               </div>
+               <div className="flex-1 relative">
+                 <TradingViewWidget symbol={currentAsset} timeframe={botSettings.timeframe} exchange={botSettings.exchange} />
+                 {/* Overlay de Preço Real-Time */}
+                 <div className="absolute top-4 right-4 z-10 glass px-4 py-2 rounded-xl border border-emerald-500/20 pointer-events-none">
+                    <p className="text-[8px] font-black text-gray-500 uppercase">Live {currentAsset}</p>
+                    <p className="text-sm font-black text-emerald-400 animate-live">${currentExchangePrice.toLocaleString()}</p>
+                 </div>
+               </div>
+            </div>
+          )}
+
           {activeTab === 'dashboard' && (
             <div className="flex flex-col gap-4 h-[calc(100vh-200px)]">
                <div className="glass rounded-[2.5rem] p-4 md:p-8 flex-1 flex flex-col relative overflow-hidden border border-gray-800">
@@ -378,6 +420,92 @@ const App: React.FC = () => {
             </div>
           )}
 
+          {activeTab === 'bot' && (
+            <div className="max-w-5xl mx-auto w-full space-y-8 py-4 animate-in fade-in duration-500">
+               <div className="flex justify-between items-center px-4">
+                  <h2 className="text-2xl font-black text-white">Central de Setup <span className="text-emerald-500">IA</span></h2>
+                  <div className={`px-4 py-2 rounded-xl text-[10px] font-black border ${botSettings.isActive ? 'bg-emerald-500/10 border-emerald-500 text-emerald-500' : 'bg-rose-500/10 border-rose-500 text-rose-500'}`}>
+                    {botSettings.isActive ? 'SISTEMA ONLINE' : 'SISTEMA OFFLINE'}
+                  </div>
+               </div>
+
+               <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                  {/* Janela de Configurações */}
+                  <div className="lg:col-span-7 glass rounded-[2.5rem] p-8 md:p-10 border border-gray-800 space-y-10">
+                     <div className="grid grid-cols-2 gap-4">
+                        <AccountBtn active={botSettings.accountType === AccountType.DEMO} onClick={() => setBotSettings(s => ({...s, accountType: AccountType.DEMO}))} label="Ambiente Demo" icon="fa-flask" />
+                        <AccountBtn active={botSettings.accountType === AccountType.REAL} onClick={() => setBotSettings(s => ({...s, accountType: AccountType.REAL}))} label="Ambiente Real" icon="fa-bolt" />
+                     </div>
+
+                     <div className="space-y-6">
+                        <h4 className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Configuração Operacional</h4>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                           <RangeInput label="Risco por Trade" value={botSettings.riskPerTrade} min={0.1} max={5} step={0.1} onChange={(v) => setBotSettings(s => ({...s, riskPerTrade: v}))} color="accent-emerald-500" />
+                           <RangeInput label="Alavancagem" value={botSettings.leverage} min={1} max={125} step={1} onChange={(v) => setBotSettings(s => ({...s, leverage: v}))} color="accent-amber-500" />
+                        </div>
+                     </div>
+
+                     <div className="space-y-4">
+                        <h4 className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Pares Selecionados</h4>
+                        <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
+                           {AVAILABLE_ASSETS.map(asset => {
+                             const pair = `${asset}/USDT`;
+                             const isSelected = botSettings.selectedPairs.includes(pair);
+                             return (
+                               <button 
+                                key={asset} 
+                                onClick={() => setBotSettings(s => ({...s, selectedPairs: isSelected ? s.selectedPairs.filter(p => p !== pair) : [...s.selectedPairs, pair]}))}
+                                className={`py-3 rounded-xl border text-[9px] font-black transition-all ${isSelected ? 'bg-emerald-500 border-emerald-500 text-white' : 'bg-gray-900 border-gray-800 text-gray-500'}`}
+                               >
+                                 {asset}
+                               </button>
+                             );
+                           })}
+                        </div>
+                     </div>
+                  </div>
+
+                  {/* Janela de Apresentação dos Dados (Operational Summary) */}
+                  <div className="lg:col-span-5 space-y-6 h-full">
+                     <div className="glass p-10 rounded-[3rem] border border-emerald-500/20 bg-emerald-500/5 h-full relative overflow-hidden flex flex-col">
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 blur-3xl rounded-full"></div>
+                        <h3 className="text-xs font-black uppercase text-emerald-500 tracking-widest mb-8 flex items-center gap-2">
+                          <i className="fas fa-microchip animate-pulse"></i> Resumo Operacional IA
+                        </h3>
+                        
+                        <div className="flex-1 space-y-6">
+                           <DataRow label="Exchange Ativa" value={botSettings.exchange} />
+                           <DataRow label="Modo Operacional" value={botSettings.strategy} />
+                           <DataRow label="Timeframe Monitorado" value={botSettings.timeframe} />
+                           <DataRow label="Margem de Risco" value={`${botSettings.riskPerTrade}%`} />
+                           <DataRow label="Stop Automático" value={`${botSettings.stopLossPct}%`} color="text-rose-500" />
+                           <DataRow label="Alvo Médio" value={`${botSettings.takeProfitPct}%`} color="text-emerald-500" />
+                           
+                           <div className="mt-8 p-6 bg-gray-900/40 rounded-[1.5rem] border border-gray-800 space-y-3">
+                              <p className="text-[9px] font-black text-gray-500 uppercase">Estado da Rede Neural</p>
+                              <div className="flex items-center gap-2">
+                                 <div className={`w-2 h-2 rounded-full ${botSettings.isActive ? 'bg-emerald-500 animate-pulse' : 'bg-gray-700'}`}></div>
+                                 <span className="text-[10px] font-bold text-gray-300">{botSettings.isActive ? 'Monitorando Sinais' : 'Sincronização Pendente'}</span>
+                              </div>
+                              <p className="text-[8px] text-gray-500 leading-relaxed mt-2 italic">
+                                "A IA está pronta para executar ordens {botSettings.strategy} no timeframe de {botSettings.timeframe} com alavancagem de {botSettings.leverage}x na {botSettings.exchange}."
+                              </p>
+                           </div>
+                        </div>
+
+                        <button 
+                          onClick={handleToggleBot}
+                          className={`mt-10 w-full py-5 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-2xl active:scale-95 ${botSettings.isActive ? 'bg-rose-600 shadow-rose-600/30' : 'bg-emerald-600 shadow-emerald-600/30'}`}
+                        >
+                          {botSettings.isActive ? 'Desligar Motores' : 'Iniciar Ciclo IA'}
+                        </button>
+                     </div>
+                  </div>
+               </div>
+            </div>
+          )}
+
+          {/* Outras abas permanecem com o comportamento original */}
           {activeTab === 'strategy' && (
             <div className="max-w-6xl mx-auto w-full space-y-6 animate-in slide-in-from-bottom-4 duration-500">
                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -562,6 +690,13 @@ const InsightRow = ({ label, value, color = "text-white" }: any) => (
   <div className="flex justify-between items-center border-b border-gray-800/40 pb-3">
     <span className="text-[9px] font-black text-gray-500 uppercase">{label}</span>
     <span className={`text-xs font-black ${color}`}>{value}</span>
+  </div>
+);
+
+const DataRow = ({ label, value, color = "text-white" }: any) => (
+  <div className="flex justify-between items-center border-b border-gray-800/20 pb-2">
+    <span className="text-[8px] font-black text-gray-500 uppercase tracking-tighter">{label}</span>
+    <span className={`text-[10px] font-black ${color}`}>{value}</span>
   </div>
 );
 
