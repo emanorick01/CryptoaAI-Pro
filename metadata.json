@@ -1,0 +1,5 @@
+{
+  "name": "CryptoAI Pro - Trading Bot",
+  "description": "Uma plataforma avançada de trading de criptomoedas com IA, instalável no Android e Linux via PWA.",
+  "requestFramePermissions": []
+}
