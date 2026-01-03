@@ -3,32 +3,61 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#0b0f1a">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="CryptoAI">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="CryptoAI Pro">
+    <meta name="description" content="Avançado Trading Bot com IA para Spot e Futuros">
+    
     <title>CryptoAI Pro</title>
+    
     <link rel="manifest" href="./manifest.json">
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2091/2091665.png">
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+    
     <style>
+        :root {
+          --safe-area-inset-bottom: env(safe-area-inset-bottom);
+        }
         body { 
           font-family: 'Inter', sans-serif; 
           -webkit-tap-highlight-color: transparent;
-          overscroll-behavior-y: contain;
+          overscroll-behavior-y: none;
+          background-color: #0b0f1a;
+          margin: 0;
+          padding: 0;
+          height: 100vh;
         }
-        .glass { background: rgba(17, 24, 39, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .glass { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.05); }
         .gradient-text { background: linear-gradient(90deg, #10b981, #3b82f6); -webkit-background-clip: text; -webkit-fill-color: transparent; }
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-track { background: #111827; }
-        ::-webkit-scrollbar-thumb { background: #374151; border-radius: 10px; }
         
-        /* Otimizações mobile */
+        /* Otimização de Scroll */
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-track { background: #0b0f1a; }
+        ::-webkit-scrollbar-thumb { background: #1f2937; border-radius: 10px; }
+        
+        /* Prevenção de zoom em inputs mobile */
+        input, select, textarea { font-size: 16px !important; }
+
+        @keyframes pulse-emerald {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.5; }
+        }
+        .animate-live { animation: pulse-emerald 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+
+        /* Ajustes para iPhone com Notch */
+        .pb-safe { padding-bottom: calc(1rem + var(--safe-area-inset-bottom)); }
+        
+        /* Melhorias UI mobile */
         @media (max-width: 768px) {
-          .glass { border-radius: 1.5rem !important; }
+          .mobile-card { border-radius: 1.25rem !important; }
+          .hide-mobile { display: none; }
         }
     </style>
 <script type="importmap">
@@ -45,7 +74,7 @@
 }
 </script>
 </head>
-<body class="bg-[#0b0f1a] text-gray-100 overflow-hidden select-none">
+<body class="text-gray-100 overflow-hidden select-none">
     <div id="root"></div>
 </body>
 </html>

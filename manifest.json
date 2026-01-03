@@ -1,25 +1,40 @@
 
 {
-  "name": "CryptoAI Pro Trading Bot",
+  "name": "CryptoAI Pro Trading",
   "short_name": "CryptoAI",
-  "description": "Plataforma avançada de trading com IA para Spot e Futuros.",
+  "description": "Plataforma de Trading com Inteligência Artificial para Criptoativos",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#0b0f1a",
   "theme_color": "#10b981",
-  "orientation": "portrait-primary",
+  "orientation": "any",
+  "categories": ["finance", "business"],
+  "screenshots": [
+    {
+      "src": "https://cdn-icons-png.sh/512/2091/2091665.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "CryptoAI Desktop View"
+    }
+  ],
   "icons": [
     {
       "src": "https://cdn-icons-png.flaticon.com/512/2091/2091665.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
       "src": "https://cdn-icons-png.flaticon.com/512/2091/2091665.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "maskable"
+    },
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/2091/2091665.png",
+      "sizes": "1024x1024",
+      "type": "image/png"
     }
   ]
 }
