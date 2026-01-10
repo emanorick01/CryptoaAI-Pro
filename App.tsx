@@ -29,7 +29,6 @@ const generateChartData = (basePrice: number) => {
 const TradingViewWidget: React.FC<{ symbol: string; timeframe: string; exchange: Exchange }> = ({ symbol, timeframe, exchange }) => {
   const container = useRef<HTMLDivElement>(null);
   
-  // Mapeamento de timeframes para o padrão TradingView
   const getTvInterval = (tf: string) => {
     switch (tf) {
       case '5m': return '5';
@@ -382,7 +381,6 @@ const App: React.FC = () => {
                </div>
                <div className="flex-1 relative">
                  <TradingViewWidget symbol={currentAsset} timeframe={botSettings.timeframe} exchange={botSettings.exchange} />
-                 {/* Overlay de Preço Real-Time */}
                  <div className="absolute top-4 right-4 z-10 glass px-4 py-2 rounded-xl border border-emerald-500/20 pointer-events-none">
                     <p className="text-[8px] font-black text-gray-500 uppercase">Live {currentAsset}</p>
                     <p className="text-sm font-black text-emerald-400 animate-live">${currentExchangePrice.toLocaleString()}</p>
@@ -392,8 +390,8 @@ const App: React.FC = () => {
           )}
 
           {activeTab === 'dashboard' && (
-            <div className="flex flex-col gap-4 h-[calc(100vh-200px)]">
-               <div className="glass rounded-[2.5rem] p-4 md:p-8 flex-1 flex flex-col relative overflow-hidden border border-gray-800">
+            <div className="flex flex-col gap-4 flex-1">
+               <div className="glass rounded-[2.5rem] p-4 md:p-8 flex-1 flex flex-col relative overflow-hidden border border-gray-800" style={{ minHeight: '400px' }}>
                   <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
                      <div>
                        <h3 className="text-xl font-black">{currentAsset}/USDT <span className="text-emerald-500 text-[10px] ml-2 font-black uppercase">Deep Neural Flow</span></h3>
@@ -404,8 +402,8 @@ const App: React.FC = () => {
                        </div>
                      </div>
                   </div>
-                  <div className="flex-1 min-h-[300px]">
-                    <ResponsiveContainer width="100%" height="100%">
+                  <div className="flex-1 w-full" style={{ minHeight: '300px' }}>
+                    <ResponsiveContainer width="100%" height="100%" minHeight={300}>
                        <AreaChart data={chartData}>
                           <CartesianGrid strokeDasharray="3 3" stroke="#1f2937" vertical={false} opacity={0.3} />
                           <XAxis dataKey="time" hide />
@@ -430,7 +428,6 @@ const App: React.FC = () => {
                </div>
 
                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                  {/* Janela de Configurações */}
                   <div className="lg:col-span-7 glass rounded-[2.5rem] p-8 md:p-10 border border-gray-800 space-y-10">
                      <div className="grid grid-cols-2 gap-4">
                         <AccountBtn active={botSettings.accountType === AccountType.DEMO} onClick={() => setBotSettings(s => ({...s, accountType: AccountType.DEMO}))} label="Ambiente Demo" icon="fa-flask" />
@@ -465,7 +462,6 @@ const App: React.FC = () => {
                      </div>
                   </div>
 
-                  {/* Janela de Apresentação dos Dados (Operational Summary) */}
                   <div className="lg:col-span-5 space-y-6 h-full">
                      <div className="glass p-10 rounded-[3rem] border border-emerald-500/20 bg-emerald-500/5 h-full relative overflow-hidden flex flex-col">
                         <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 blur-3xl rounded-full"></div>
@@ -505,7 +501,6 @@ const App: React.FC = () => {
             </div>
           )}
 
-          {/* Outras abas permanecem com o comportamento original */}
           {activeTab === 'strategy' && (
             <div className="max-w-6xl mx-auto w-full space-y-6 animate-in slide-in-from-bottom-4 duration-500">
                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
